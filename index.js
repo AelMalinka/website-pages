@@ -33,11 +33,10 @@ app.use(etag());
 var pages = {
 	create: function *(site) {
 		try {
-			var schema = yield this.pg.db.client.query_('CREATE SCHEMA "' + site + '";');
-			var table = yield this.pg.db.client.query_('CREATE TABLE "' + site + '".pages (name TEXT PRIMARY KEY, body TEXT);');
-			this.body = schema.command + '\n' + table.command;
+			var result = yield this.pg.db.client.query_('CREATE TABLE pages."' + site + '" (name TEXT PRIMARY KEY, body TEXT);');
+			this.body = result.command;
 		} catch(e) {
-			if(e.code == '42P06') {
+			if(e.code == '42P07') {
 				e.status = 409;
 				e.expose = true;
 			}
@@ -46,7 +45,7 @@ var pages = {
 	},
 	remove: function *(site) {
 		try {
-			var result = yield this.pg.db.client.query_('DROP SCHEMA "' + site + '" CASCADE;');
+			var result = yield this.pg.db.client.query_('DROP TABLE pages."' + site + '";');
 			this.body = result.command;
 		} catch(e) {
 			if(e.code == '3F000') {
@@ -58,7 +57,7 @@ var pages = {
 	},
 	get: function *(site) {
 		try {
-			var result = yield this.pg.db.client.query_('SELECT name FROM "' + site + '".pages;');
+			var result = yield this.pg.db.client.query_('SELECT name FROM pages."' + site + '";');
 		} catch(e) {
 			if(e.code == '42P01') {
 				e.status = 404;
@@ -73,8 +72,11 @@ var pages = {
 
 var page = {
 	create: function *(site, page) {
+		if(this.request.body === undefined || this.request.body.body === undefined) {
+			this.throw(400, 'no page body');
+		}
 		try {
-			var result = yield this.pg.db.client.query_('INSERT INTO "' + site + '".pages (name, body) VALUES ($1::text, $2::text);', [page, this.request.body.body]);
+			var result = yield this.pg.db.client.query_('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, this.request.body.body]);
 			this.body = result.command + ' ' + result.rowCount;
 		} catch(e) {
 			if(e.code == '23505') {
@@ -85,11 +87,14 @@ var page = {
 		}
 	},
 	remove: function *(site, page) {
-		var result = yield this.pg.db.client.query_('DELETE FROM "' + site + '".pages WHERE name = $1::text;', [page]);
+		var result = yield this.pg.db.client.query_('DELETE FROM pages."' + site + '" WHERE name = $1::text;', [page]);
 		this.body = result.command + ' ' + result.rowCount;
 	},
 	modify: function *(site, page) {
-		var result = yield this.pg.db.client.query_('UPDATE "' + site + '".pages SET body = $2::text WHERE name = $1::text', [page, this.request.body.body]);
+		if(this.request.body === undefined || this.request.body.body === undefined) {
+			this.throw(400, 'no page body');
+		}
+		var result = yield this.pg.db.client.query_('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, this.request.body.body]);
 		if(result.rowCount == 0)
 			this.throw(404);
 
@@ -97,7 +102,7 @@ var page = {
 	},
 	get: function *(site, page) {
 		try {
-			var result = yield this.pg.db.client.query_('SELECT body FROM "' + site + '".pages WHERE name = $1::text;', [page]);
+			var result = yield this.pg.db.client.query_('SELECT body FROM pages."' + site + '" WHERE name = $1::text;', [page]);
 		} catch (e) {
 			if(e.code == '42P01') {
 				e.status = 404;
