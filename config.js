@@ -3,7 +3,7 @@
 
 module.exports = {
 	db: {
-		user: process.env.DB_USER || 'postgresql',
+		user: process.env.DB_USER || 'website',
 		password: process.env.DB_PASS || '',
 		port: process.env.DB_PORT,
 		host: process.env.DB_HOST || 'localhost',
