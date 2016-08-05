@@ -1,6 +1,6 @@
 {
   "name": "pages",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "returns markdown for pages from db",
   "main": "index.js",
   "engines": {
