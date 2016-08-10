@@ -2,6 +2,7 @@
 */
 
 module.exports = {
+	name: 'pages',
 	db: {
 		user: process.env.DB_USER || 'website',
 		password: process.env.DB_PASS || '',

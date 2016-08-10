@@ -9,7 +9,7 @@ if(process.env.NODE_ENV === 'production') {
 }
 
 var koa = require('koa');
-var config = require('./config.js');
+var config = require('config')(require('./config.js'));
 var logger = require('koa-logger');
 var fresh = require('koa-fresh');
 var etag = require('koa-etag');
@@ -21,14 +21,6 @@ var pg = require('koa-pg');
 var body = require('koa-body-parser');
 
 var app = koa();
-
-app.use(logger());
-app.use(body());
-app.use(pg(config.db.toString()));
-app.use(compress());
-app.use(conditional());
-app.use(fresh());
-app.use(etag());
 
 var pages = {
 	create: function *(site) {
@@ -118,12 +110,28 @@ var page = {
 	},
 };
 
-app.use(route.get('/:site', pages.get));
-app.use(route.put('/:site', pages.create));
-app.use(route.del('/:site', pages.remove));
-app.use(route.get('/:site/:page', page.get));
-app.use(route.put('/:site/:page', page.create));
-app.use(route.del('/:site/:page', page.remove));
-app.use(route.post('/:site/:page', page.modify));
+var server;
 
-app.listen(config.port);
+config.onReady(function() {
+	app.use(logger());
+	app.use(body());
+	app.use(pg(config.db.toString()));
+	app.use(compress());
+	app.use(conditional());
+
+	app.use(route.get('/:site', pages.get));
+	app.use(route.put('/:site', pages.create));
+	app.use(route.del('/:site', pages.remove));
+	app.use(route.get('/:site/:page', page.get));
+	app.use(route.put('/:site/:page', page.create));
+	app.use(route.del('/:site/:page', page.remove));
+	app.use(route.post('/:site/:page', page.modify));
+
+	server = app.listen(config.port);
+});
+
+config.onChange(function() {
+	server.close(function() {
+		server = app.listen(config.port);
+	});
+});

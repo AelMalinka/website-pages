@@ -20,6 +20,7 @@
   "dependencies": {
     "@google/cloud-debug": "^0.8.3",
     "@google/cloud-trace": "^0.5.5",
+    "config": "https://storage.googleapis.com/release/config.tar.gz",
     "koa": "^1.2.1",
     "koa-body-parser": "^1.1.2",
     "koa-compress": "^1.0.9",
