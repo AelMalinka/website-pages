@@ -13,5 +13,5 @@ module.exports = {
 			return 'postgres://' + this.user + (this.password !== '' ? ':' : '') + this.password + '@' + this.host + (this.port !== undefined ? ':' + this.port : '') + '/' + this.db;
 		},
 	},
-	port: process.env.PORT || (process.env.NODE_ENV === 'production' ? 8080 : 8082),
+	port: process.env.PORT || (process.env.NODE_ENV === 'production' ? 8080 : 8083),
 };
