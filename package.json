@@ -18,8 +18,6 @@
   "author": "Michael Thomas (malinka) <malinka@entropy-development.com>",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/debug-agent": "^1.0.0",
-    "@google-cloud/trace-agent": "^1.0.1",
     "config": "https://storage.googleapis.com/release/config.tar.gz",
     "koa": "^1.2.1",
     "koa-body": "^1.6.0",

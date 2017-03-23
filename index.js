@@ -3,11 +3,6 @@
 
 'use strict';
 
-if(process.env.NODE_ENV === 'production') {
-	require('@google/cloud-trace').start();
-	require('@google/cloud-debug');
-}
-
 var koa = require('koa');
 var config = require('config')(require('./config.js'));
 var logger = require('koa-logger');
