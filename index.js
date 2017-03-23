@@ -18,7 +18,7 @@ var conditional = require('koa-conditional-get');
 
 var route = require('koa-route');
 var pg = require('koa-pg');
-var body = require('koa-body-parser');
+var body = require('koa-body');
 
 var app = koa();
 
@@ -64,11 +64,11 @@ var pages = {
 
 var page = {
 	create: function *(site, page) {
-		if(this.request.body === undefined || this.request.body.body === undefined) {
+		if(this.request.body === undefined) {
 			this.throw(400, 'no page body');
 		}
 		try {
-			var result = yield this.pg.db.client.query_('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, this.request.body.body]);
+			var result = yield this.pg.db.client.query_('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, this.request.body]);
 			this.body = result.command + ' ' + result.rowCount;
 		} catch(e) {
 			if(e.code == '23505') {
@@ -83,10 +83,10 @@ var page = {
 		this.body = result.command + ' ' + result.rowCount;
 	},
 	modify: function *(site, page) {
-		if(this.request.body === undefined || this.request.body.body === undefined) {
+		if(this.request.body === undefined) {
 			this.throw(400, 'no page body');
 		}
-		var result = yield this.pg.db.client.query_('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, this.request.body.body]);
+		var result = yield this.pg.db.client.query_('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, this.request.body]);
 		if(result.rowCount == 0)
 			this.throw(404);
 
@@ -114,7 +114,7 @@ var server;
 
 config.onReady(function() {
 	app.use(logger());
-	app.use(body());
+	app.use(body({strict: false}));
 	app.use(pg(config.db.toString()));
 	app.use(compress());
 	app.use(conditional());
