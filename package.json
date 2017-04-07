@@ -8,17 +8,13 @@
   },
   "scripts": {
     "start": "node index.js",
-    "monitor": "nodemon index.js",
-    "deploy": "gcloud app deploy --version ${npm_package_version//./-}"
+    "monitor": "nodemon index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://source.developers.google.com/p/entropy-1351/r/pages"
-  },
+  "repository": "AelMalinka/website-pages",
   "author": "Michael Thomas (malinka) <malinka@entropy-development.com>",
-  "license": "ISC",
+  "license": "AGPL-3.0",
   "dependencies": {
-    "config": "https://storage.googleapis.com/release/config.tar.gz",
+    "config": "AelMalinka/website-config",
     "koa": "^1.2.1",
     "koa-body": "^1.6.0",
     "koa-compress": "^1.0.9",
