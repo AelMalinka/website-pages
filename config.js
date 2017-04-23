@@ -15,4 +15,5 @@ module.exports = {
 		},
 	},
 	port: process.env.PORT || 8080,
+	forward: 'http://' + process.env.FORWARD + '/',
 };
