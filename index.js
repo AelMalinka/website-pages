@@ -4,25 +4,25 @@
 
 'use strict';
 
-var koa = require('koa');
-var config = require('config')(require('./config.js'));
-var logger = require('koa-logger');
-var fresh = require('koa-fresh');
-var etag = require('koa-etag');
-var compress = require('koa-compress');
-var conditional = require('koa-conditional-get');
+const koa = require('koa');
 
-var route = require('koa-route');
-var pg = require('koa-pg');
-var body = require('koa-body');
+const logger = require('koa-logger');
+const etag = require('koa-etag');
+const conditional = require('koa-conditional-get');
 
-var app = koa();
+const config = require('config')(require('./config.js'));
 
-var pages = {
-	create: function *(site) {
+const route = require('koa-route');
+const pg = require('koa-pg');
+const body = require('koa-bodyparser');
+
+const app = new koa();
+
+const pages = {
+	create: async (ctx, site) => {
 		try {
-			var result = yield this.pg.db.client.query_('CREATE TABLE pages."' + site + '" (name TEXT PRIMARY KEY, body TEXT);');
-			this.body = result.command;
+			const result = await ctx.pg.db.client.queryPromise('CREATE TABLE pages."' + site + '" (name TEXT PRIMARY KEY, body TEXT);');
+			ctx.body = result.command;
 		} catch(e) {
 			if(e.code == '42P07') {
 				e.status = 409;
@@ -31,10 +31,10 @@ var pages = {
 			throw e;
 		}
 	},
-	remove: function *(site) {
+	remove: async (ctx, site) => {
 		try {
-			var result = yield this.pg.db.client.query_('DROP TABLE pages."' + site + '";');
-			this.body = result.command;
+			const result = await ctx.pg.db.client.queryPromise('DROP TABLE pages."' + site + '";');
+			ctx.body = result.command;
 		} catch(e) {
 			if(e.code == '3F000') {
 				e.status = 404;
@@ -43,9 +43,11 @@ var pages = {
 			throw e;
 		}
 	},
-	get: function *(site) {
+	get: async (ctx, site) => {
 		try {
-			var result = yield this.pg.db.client.query_('SELECT name FROM pages."' + site + '";');
+			const result = await ctx.pg.db.client.queryPromise('SELECT name FROM pages."' + site + '";');
+			ctx.type = 'json';
+			ctx.body = JSON.stringify((result.rows !== undefined ? result.rows : {}));
 		} catch(e) {
 			if(e.code == '42P01') {
 				e.status = 404;
@@ -53,19 +55,17 @@ var pages = {
 			}
 			throw e;
 		}
-		this.type = 'json';
-		this.body = JSON.stringify((result.rows !== undefined ? result.rows : {}));
 	},
 };
 
-var page = {
-	create: function *(site, page) {
-		if(this.request.body === undefined) {
-			this.throw(400, 'no page body');
+const page = {
+	create: async (ctx, site, page) => {
+		if(ctx.request.body === undefined) {
+			ctx.throw(400, 'no page body');
 		}
 		try {
-			var result = yield this.pg.db.client.query_('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, this.request.body]);
-			this.body = result.command + ' ' + result.rowCount;
+			const result = await ctx.pg.db.client.queryPromise('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, ctx.request.body]);
+			ctx.body = result.command + ' ' + result.rowCount;
 		} catch(e) {
 			if(e.code == '23505') {
 				e.status = 409;
@@ -74,23 +74,28 @@ var page = {
 			throw e;
 		}
 	},
-	remove: function *(site, page) {
-		var result = yield this.pg.db.client.query_('DELETE FROM pages."' + site + '" WHERE name = $1::text;', [page]);
-		this.body = result.command + ' ' + result.rowCount;
+	remove: async (ctx, site, page) => {
+		const result = await ctx.pg.db.client.queryPromise('DELETE FROM pages."' + site + '" WHERE name = $1::text;', [page]);
+		ctx.body = result.command + ' ' + result.rowCount;
 	},
-	modify: function *(site, page) {
-		if(this.request.body === undefined) {
-			this.throw(400, 'no page body');
+	modify: async (ctx, site, page) => {
+		if(ctx.request.body === undefined) {
+			ctx.throw(400, 'no page body');
 		}
-		var result = yield this.pg.db.client.query_('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, this.request.body]);
+		const result = await ctx.pg.db.client.queryPromise('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, ctx.request.body]);
 		if(result.rowCount == 0)
-			this.throw(404);
+			ctx.throw(404);
 
-		this.body = result.command + ' ' + result.rowCount;
+		ctx.body = result.command + ' ' + result.rowCount;
 	},
-	get: function *(site, page) {
+	get: async (ctx, site, page) => {
 		try {
-			var result = yield this.pg.db.client.query_('SELECT body FROM pages."' + site + '" WHERE name = $1::text;', [page]);
+			const result = await ctx.pg.db.client.queryPromise('SELECT body FROM pages."' + site + '" WHERE name = $1::text;', [page]);
+			ctx.type = 'markdown';
+			if(result.rows.length == 0)
+				ctx.throw(404);
+
+			ctx.body = result.rows[0].body;
 		} catch (e) {
 			if(e.code == '42P01') {
 				e.status = 404;
@@ -98,22 +103,17 @@ var page = {
 			}
 			throw e;
 		}
-		this.type = 'markdown';
-		if(result.rows.length == 0)
-			this.throw(404);
-
-		this.body = result.rows[0].body;
 	},
 };
 
 var server;
 
+app.use(logger());
+app.use(body({strict: false}));
+app.use(conditional());
+
 config.onReady(function() {
-	app.use(logger());
-	app.use(body({strict: false}));
 	app.use(pg(config.db.toString()));
-	app.use(compress());
-	app.use(conditional());
 
 	app.use(route.get('/:site', pages.get));
 	app.use(route.put('/:site', pages.create));
