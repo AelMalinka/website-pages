@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "monitor": "nodemon index.js"
+    "monitor": "`npm bin`/nodemon index.js"
   },
   "repository": "AelMalinka/website-pages",
   "author": "Michael Thomas (malinka) <malinka@entropy-development.com>",
