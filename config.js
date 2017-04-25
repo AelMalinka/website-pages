@@ -15,5 +15,5 @@ module.exports = {
 		},
 	},
 	port: process.env.PORT || 8080,
-	forward: 'http://' + (process.env.FORWARD !== undefined ? process.env.FORWARD : 'localhost:' + process.env.PORT) + '/',
+	forward: 'http://' + (process.env.FORWARD !== undefined ? process.env.FORWARD : 'localhost:') + process.env.PORT + '/',
 };
