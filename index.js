@@ -60,11 +60,11 @@ const pages = {
 
 const page = {
 	create: async (ctx, site, page) => {
-		if(ctx.request.body === undefined) {
+		if(ctx.request.body === undefined || ctx.request.body.value === undefined) {
 			ctx.throw(400, 'no page body');
 		}
 		try {
-			const result = await ctx.pg.db.client.queryPromise('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, ctx.request.body]);
+			const result = await ctx.pg.db.client.queryPromise('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, ctx.request.body.value]);
 			ctx.body = result.command + ' ' + result.rowCount;
 		} catch(e) {
 			if(e.code == '23505') {
@@ -79,10 +79,10 @@ const page = {
 		ctx.body = result.command + ' ' + result.rowCount;
 	},
 	modify: async (ctx, site, page) => {
-		if(ctx.request.body === undefined) {
+		if(ctx.request.body === undefined || ctx.request.body.value === undefined) {
 			ctx.throw(400, 'no page body');
 		}
-		const result = await ctx.pg.db.client.queryPromise('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, ctx.request.body]);
+		const result = await ctx.pg.db.client.queryPromise('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, ctx.request.body.value]);
 		if(result.rowCount == 0)
 			ctx.throw(404);
 
