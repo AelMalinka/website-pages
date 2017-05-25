@@ -14,6 +14,7 @@ const config = require('config')(require('./config.js'));
 
 const route = require('koa-route');
 const pg = require('koa-pg');
+
 const body = require('koa-bodyparser');
 
 const app = new koa();
@@ -60,11 +61,11 @@ const pages = {
 
 const page = {
 	create: async (ctx, site, page) => {
-		if(ctx.request.body === undefined || ctx.request.body.value === undefined) {
+		if(ctx.request.body === undefined || ctx.request.body.f === undefined) {
 			ctx.throw(400, 'no page body');
 		}
 		try {
-			const result = await ctx.pg.db.client.queryPromise('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, ctx.request.body.value]);
+			const result = await ctx.pg.db.client.queryPromise('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, ctx.request.body.f]);
 			ctx.body = result.command + ' ' + result.rowCount;
 		} catch(e) {
 			if(e.code == '23505') {
@@ -79,10 +80,10 @@ const page = {
 		ctx.body = result.command + ' ' + result.rowCount;
 	},
 	modify: async (ctx, site, page) => {
-		if(ctx.request.body === undefined || ctx.request.body.value === undefined) {
+		if(ctx.request.body === undefined || ctx.request.body.f === undefined) {
 			ctx.throw(400, 'no page body');
 		}
-		const result = await ctx.pg.db.client.queryPromise('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, ctx.request.body.value]);
+		const result = await ctx.pg.db.client.queryPromise('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, ctx.request.body.f]);
 		if(result.rowCount == 0)
 			ctx.throw(404);
 
@@ -109,7 +110,7 @@ const page = {
 var server;
 
 app.use(logger());
-app.use(body({strict: false}));
+app.use(body());
 app.use(conditional());
 
 config.onReady(function() {
