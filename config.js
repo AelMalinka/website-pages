@@ -4,11 +4,9 @@
 
 module.exports = {
 	name: 'pages',
-	db: {
-		toString: function() {
-			return 'postgres://' + this.user + (this.password !== '' ? ':' : '') + this.password + '@' + this.host + (this.port !== undefined ? ':' + this.port : '') + '/' + this.db;
-		},
-	},
 	port: process.env.PORT || 8080,
-	forward: 'http://' + (process.env.FORWARD !== undefined ? process.env.FORWARD : 'localhost:') + process.env.PORT + '/',
+	config: {
+		host: 'localhost' || process.env.CONFIG_HOST,
+		port: 8081 || process.env.CONFIG_PORT,
+	},
 };

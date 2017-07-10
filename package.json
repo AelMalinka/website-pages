@@ -14,16 +14,15 @@
   "author": "Michael Thomas (malinka) <malinka@entropy-development.com>",
   "license": "AGPL-3.0",
   "dependencies": {
-    "config": "github:aelmalinka/website-config",
+    "config": "github:AelMalinka/website-config",
     "koa": "^2.2.0",
     "koa-bodyparser": "^4.2.0",
     "koa-conditional-get": "^2.0.0",
     "koa-etag": "^3.0.0",
     "koa-logger": "^2.0.1",
-    "koa-pg": "github:aelmalinka/koa-pg",
     "koa-route": "^3.2.0"
   },
   "devDependencies": {
-    "nodemon": "^1.10.0"
+    "nodemon": "^1.11.0"
   }
 }
