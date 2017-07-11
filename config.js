@@ -6,7 +6,7 @@ module.exports = {
 	name: 'pages',
 	port: process.env.PORT || 8080,
 	config: {
-		host: 'localhost' || process.env.CONFIG_HOST,
-		port: 8081 || process.env.CONFIG_PORT,
+		host: process.env.CONFIG_HOST || 'localhost',
+		port: process.env.CONFIG_PORT || 8081,
 	},
 };
