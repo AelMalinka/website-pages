@@ -13,7 +13,7 @@ const route = require('koa-route');
 const body = require('koa-bodyparser');
 const { Pool } = require('pg');
 
-const config = require('config')(require('./config.js'));
+const config = require('./config.js');
 
 const app = new koa();
 
@@ -110,20 +110,25 @@ app.use(body());
 app.use(etag());
 app.use(conditional());
 
-config.onReady(function() {
-	app.use(async (ctx, next) => {
-		ctx.pg = new Pool(config.db);
+app.use(async (ctx, next) => {
+	if(ctx.url.startsWith('/' + config.name))
+		ctx.url = ctx.url.replace('/' + config.name, '');
 
-		await next();
-	});
-
-	app.use(route.get('/:site', pages.get));
-	app.use(route.put('/:site', pages.create));
-	app.use(route.del('/:site', pages.remove));
-	app.use(route.get('/:site/:page', page.get));
-	app.use(route.put('/:site/:page', page.create));
-	app.use(route.del('/:site/:page', page.remove));
-	app.use(route.post('/:site/:page', page.modify));
-
-	app.listen(config.port);
+	await next();
 });
+
+app.use(async (ctx, next) => {
+	ctx.pg = new Pool();
+
+	await next();
+});
+
+app.use(route.get('/:site', pages.get));
+app.use(route.put('/:site', pages.create));
+app.use(route.del('/:site', pages.remove));
+app.use(route.get('/:site/:page', page.get));
+app.use(route.put('/:site/:page', page.create));
+app.use(route.del('/:site/:page', page.remove));
+app.use(route.post('/:site/:page', page.modify));
+
+app.listen(config.port);

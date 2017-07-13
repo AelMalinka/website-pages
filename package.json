@@ -1,6 +1,6 @@
 {
   "name": "pages",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "returns markdown for pages from db",
   "main": "index.js",
   "engines": {
@@ -14,13 +14,13 @@
   "author": "Michael Thomas (malinka) <malinka@entropy-development.com>",
   "license": "AGPL-3.0",
   "dependencies": {
-    "config": "github:AelMalinka/website-config",
     "koa": "^2.2.0",
     "koa-bodyparser": "^4.2.0",
     "koa-conditional-get": "^2.0.0",
     "koa-etag": "^3.0.0",
     "koa-logger": "^3.0.1",
-    "koa-route": "^3.2.0"
+    "koa-route": "^3.2.0",
+    "pg": "^6.4.0"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

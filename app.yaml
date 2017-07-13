@@ -13,20 +13,35 @@ spec:
         spec:
             containers:
                 - name: pages
-                  image: us.gcr.io/entropy-development/pages:0.1.1
+                  image: us.gcr.io/entropy-development/pages:0.2.0
                   ports:
                       - containerPort: 8080
                   env:
-                      - name: CONFIG_HOST
+                      - name: PGHOST
                         valueFrom:
                             configMapKeyRef:
                                 name: website-config
-                                key: config.host
-                      - name: CONFIG_PORT
+                                key: db.host
+                      - name: PGPORT
                         valueFrom:
                             configMapKeyRef:
                                 name: website-config
-                                key: config.port
+                                key: db.port
+                      - name: PGDATABASE
+                        valueFrom:
+                            configMapKeyRef:
+                                name: website-config
+                                key: db.name
+                      - name: PGUSER
+                        valueFrom:
+                            secretKeyRef:
+                                name: website-secret
+                                key: db.user
+                      - name: PGPASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: website-secret
+                                key: db.pass
 ---
 apiVersion: v1
 kind: Service
