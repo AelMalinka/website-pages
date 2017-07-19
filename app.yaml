@@ -12,36 +12,36 @@ spec:
                 app: pages
         spec:
             containers:
-                - name: pages
-                  image: us.gcr.io/entropy-development/pages:0.2.0
-                  ports:
-                      - containerPort: 8080
-                  env:
-                      - name: PGHOST
-                        valueFrom:
-                            configMapKeyRef:
-                                name: website-config
-                                key: db.host
-                      - name: PGPORT
-                        valueFrom:
-                            configMapKeyRef:
-                                name: website-config
-                                key: db.port
-                      - name: PGDATABASE
-                        valueFrom:
-                            configMapKeyRef:
-                                name: website-config
-                                key: db.name
-                      - name: PGUSER
-                        valueFrom:
-                            secretKeyRef:
-                                name: website-secret
-                                key: db.user
-                      - name: PGPASSWORD
-                        valueFrom:
-                            secretKeyRef:
-                                name: website-secret
-                                key: db.pass
+            - name: pages
+              image: us.gcr.io/entropy-development/pages:0.2.0
+              ports:
+              - containerPort: 8080
+              env:
+              - name: PGHOST
+                valueFrom:
+                    configMapKeyRef:
+                        name: website-config
+                        key: db.host
+              - name: PGPORT
+                valueFrom:
+                    configMapKeyRef:
+                        name: website-config
+                        key: db.port
+              - name: PGDATABASE
+                valueFrom:
+                    configMapKeyRef:
+                        name: website-config
+                        key: db.name
+              - name: PGUSER
+                valueFrom:
+                    secretKeyRef:
+                        name: website-secret
+                        key: db.user
+              - name: PGPASSWORD
+                valueFrom:
+                    secretKeyRef:
+                        name: website-secret
+                        key: db.pass
 ---
 apiVersion: v1
 kind: Service
@@ -52,8 +52,8 @@ metadata:
 spec:
     type: LoadBalancer
     ports:
-        - port: 8080
-          protocol: TCP
-          name: http-pages
+    - port: 8080
+      protocol: TCP
+      name: http-pages
     selector:
         app: pages
