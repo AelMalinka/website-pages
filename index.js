@@ -78,10 +78,10 @@ const page = {
 		ctx.body = result.command + ' ' + result.rowCount;
 	},
 	modify: async (ctx, site, page) => {
-		if(ctx.request.body === undefined || ctx.request.body.f === undefined) {
-			ctx.throw(400, 'no page body');
+		if(ctx.request.body === undefined || ctx.request.body.fields === undefined || ctx.request.body.fields.f === undefined) {
+			ctx.throw(400, 'no data');
 		}
-		const result = await ctx.pg.query('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, ctx.request.body.f]);
+		const result = await ctx.pg.query('UPDATE pages."' + site + '" SET body = $2::text WHERE name = $1::text', [page, ctx.request.body.fields.f]);
 		if(result.rowCount == 0)
 			ctx.throw(404);
 
