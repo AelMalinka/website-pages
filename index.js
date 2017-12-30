@@ -123,6 +123,12 @@ app.use(async (ctx, next) => {
 	await next();
 });
 
+app.use(async (ctx, next) => {
+	await ctx.pg.query('CREATE SCHEMA IF NOT EXISTS pages;');
+
+	await next();
+});
+
 app.use(route.get('/:site', pages.get));
 app.use(route.put('/:site', pages.create));
 app.use(route.del('/:site', pages.remove));
