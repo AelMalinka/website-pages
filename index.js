@@ -10,7 +10,7 @@ const logger = require('koa-logger');
 const etag = require('koa-etag');
 const conditional = require('koa-conditional-get');
 const route = require('koa-route');
-const body = require('koa-bodyparser');
+const body = require('koa-body');
 const { Pool } = require('pg');
 
 const config = require('./config.js');
@@ -59,11 +59,11 @@ const pages = {
 
 const page = {
 	create: async (ctx, site, page) => {
-		if(ctx.request.body === undefined || ctx.request.body.f === undefined) {
-			ctx.throw(400, 'no page body');
+		if(ctx.request.body === undefined || ctx.request.body.fields === undefined || ctx.request.body.fields.f === undefined) {
+			ctx.throw(400, 'no data');
 		}
 		try {
-			const result = await ctx.pg.query('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, ctx.request.body.f]);
+			const result = await ctx.pg.query('INSERT INTO pages."' + site + '" (name, body) VALUES ($1::text, $2::text);', [page, ctx.request.body.fields.f]);
 			ctx.body = result.command + ' ' + result.rowCount;
 		} catch(e) {
 			if(e.code == '23505') {
@@ -106,7 +106,9 @@ const page = {
 };
 
 app.use(logger());
-app.use(body());
+app.use(body({
+	multipart: true,
+}));
 app.use(etag());
 app.use(conditional());
 
