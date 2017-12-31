@@ -10,9 +10,9 @@
     "start": "node index.js",
     "monitor": "`npm bin`/nodemon index.js"
   },
-  "repository": "AelMalinka/website-pages",
   "author": "Michael Thomas (malinka) <malinka@entropy-development.com>",
   "license": "AGPL-3.0",
+  "repository": "EntropyDevelopment/website-pages",
   "dependencies": {
     "koa": "^2.2.0",
     "koa-body": "^2.5.0",
